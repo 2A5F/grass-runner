@@ -14,7 +14,8 @@
     "build": "darl build"
   },
   "keywords": [],
-  "author": "",
+  "author": "2A5F",
+  "repository": "https://github.com/2A5F/grass-runner",
   "license": "AGPL-3.0",
   "devDependencies": {
     "@swc/cli": "^0.1.62",
