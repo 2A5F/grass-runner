@@ -18,6 +18,10 @@ export type Config = {
     timeout?: number
 }
 
+export function hasRuntime(str: string): str is Runtime {
+    return str == 'node' || str == 'node-eval'
+}
+
 function runtime2image(runtime: Runtime): string {
     if (runtime == 'node' || runtime == 'node-eval') return 'node'
     else throw new Error(`unknow runtime ${runtime}`)
@@ -78,7 +82,7 @@ export async function run(
     })
     if (msgs.length) msg(rmln(msgs.join('')))
     if (errs.length) err(rmln(errs.join('')))
-    return msgs.length > 0 && errs.length > 0
+    return msgs.length > 0 || errs.length > 0
 }
 
 function rmln(s: string) {
