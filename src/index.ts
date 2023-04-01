@@ -29,7 +29,7 @@ function runtime2image(runtime: Runtime): string {
 
 function runtime2command(runtime: Runtime, code: string): string[] {
     if (runtime == 'node') return ['node', '-e', code]
-    if (runtime == 'node-eval') return ['node', '-e', `console.log(eval("${code.replace('"', '\\"')}"))`]
+    if (runtime == 'node-eval') return ['node', '-e', `console.log(eval("${code.replaceAll('"', '\\"')}"))`]
     else throw new Error(`unknow runtime ${runtime}`)
 }
 
