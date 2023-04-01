@@ -24,7 +24,7 @@ export function hasRuntime(str: string): str is Runtime {
 
 function runtime2image(runtime: Runtime): string {
     if (runtime == 'node' || runtime == 'node-eval') return 'node'
-    if (runtime == 'deno' || runtime == 'deno-eval') return 'denoland/deno:ubuntu'
+    if (runtime == 'deno' || runtime == 'deno-eval') return 'denoland/deno'
     if (runtime == 'shell') return 'ubuntu'
     if (runtime == 'bash') return 'bash'
     if (runtime == 'pwsh') return 'mcr.microsoft.com/powershell'
