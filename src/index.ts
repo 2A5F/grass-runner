@@ -38,8 +38,8 @@ function quoted(code: string): string {
 function runtime2command(runtime: Runtime, code: string): string[] {
     if (runtime == 'node') return ['node', '-e', code]
     if (runtime == 'node-eval') return ['node', '-e', `console.log(eval("${quoted(code)}"))`]
-    if (runtime == 'deno') return ['bash', '-c', `DENO_DIR=/run/deno && deno eval --check --ext ts -q "${quoted(code)}"`]
-    if (runtime == 'deno-eval') return ['bash', '-c', `DENO_DIR=/run/deno && deno eval --check --ext ts -q -p "${quoted(code)}"`]
+    if (runtime == 'deno') return ['bash', '-c', `DENO_DIR=/run/deno && NO_COLOR=true && deno eval --check --ext ts -q "${quoted(code)}"`]
+    if (runtime == 'deno-eval') return ['bash', '-c', `DENO_DIR=/run/deno && NO_COLOR=true && deno eval --check --ext ts -q -p "${quoted(code)}"`]
     if (runtime == 'shell') return ['bash', '-c', code]
     if (runtime == 'bash') return ['bash', '-c', code]
     if (runtime == 'pwsh') return ['pwsh', '-Command', code]
