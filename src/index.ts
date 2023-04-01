@@ -70,7 +70,7 @@ export async function run(
         ],
         {}
     )
-    cps.on('error', e => msg(`${e.message}`))
+    cps.on('error', e => err(`${e.message}`))
     cps.stdout.setEncoding('utf-8')
     cps.stderr.setEncoding('utf-8')
     const msgs: string[] = []
