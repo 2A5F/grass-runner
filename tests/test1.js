@@ -1,6 +1,6 @@
 const { run } = require('../lib/index.js')
 
 run({
-    runtime: 'node-eval',
-    code: '2 ** 5',
+    runtime: 'deno-eval',
+    code: '1 + 1',
 }, console.log, console.error)

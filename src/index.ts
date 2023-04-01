@@ -2,7 +2,7 @@ import { spawn } from 'child_process'
 
 const default_cmd = 'podman'
 
-export type Runtime = 'node' | 'node-eval'
+export type Runtime = 'node' | 'node-eval' | 'deno' | 'deno-eval' | 'shell' | 'bash' | 'pwsh'
 
 export type Config = {
     cmd?: 'podman'
@@ -19,17 +19,30 @@ export type Config = {
 }
 
 export function hasRuntime(str: string): str is Runtime {
-    return str == 'node' || str == 'node-eval'
+    return str == 'node' || str == 'node-eval' || str == 'deno' || str == 'deno-eval' || str == 'shell' || str == 'bash' || str == 'pwsh'
 }
 
 function runtime2image(runtime: Runtime): string {
     if (runtime == 'node' || runtime == 'node-eval') return 'node'
+    if (runtime == 'deno' || runtime == 'deno-eval') return 'denoland/deno:ubuntu'
+    if (runtime == 'shell') return 'ubuntu'
+    if (runtime == 'bash') return 'bash'
+    if (runtime == 'pwsh') return 'mcr.microsoft.com/powershell'
     else throw new Error(`unknow runtime ${runtime}`)
+}
+
+function quoted(code: string): string {
+    return code.replaceAll('"', '\\"')
 }
 
 function runtime2command(runtime: Runtime, code: string): string[] {
     if (runtime == 'node') return ['node', '-e', code]
-    if (runtime == 'node-eval') return ['node', '-e', `console.log(eval("${code.replaceAll('"', '\\"')}"))`]
+    if (runtime == 'node-eval') return ['node', '-e', `console.log(eval("${quoted(code)}"))`]
+    if (runtime == 'deno') return ['bash', '-c', `DENO_DIR=/run/deno && deno eval --check --ext ts -q "${quoted(code)}"`]
+    if (runtime == 'deno-eval') return ['bash', '-c', `DENO_DIR=/run/deno && deno eval --check --ext ts -q -p "${quoted(code)}"`]
+    if (runtime == 'shell') return ['bash', '-c', code]
+    if (runtime == 'bash') return ['bash', '-c', code]
+    if (runtime == 'pwsh') return ['pwsh', '-Command', code]
     else throw new Error(`unknow runtime ${runtime}`)
 }
 
@@ -47,29 +60,28 @@ export async function run(
     timeout = Math.max(timeout, 60)
     const image = runtime2image(runtime)
     const command = runtime2command(runtime, code)
-    const cps = spawn(
-        cmd,
-        [
-            'run',
-            '--cpus',
-            `${cpus}`,
-            '--image-volume',
-            'tmpfs',
-            '--memory',
-            `${memory}`,
-            '--memory-swap',
-            `${memorySwap}`,
-            '--network',
-            'none',
-            '--read-only',
-            '--rm',
-            '--timeout',
-            `${timeout}`,
-            image,
-            ...command,
-        ],
-        {}
-    )
+    const args = [
+        'run',
+        '--cpus',
+        `${cpus}`,
+        '--image-volume',
+        'tmpfs',
+        '--memory',
+        `${memory}`,
+        '--memory-swap',
+        `${memorySwap}`,
+        '--network',
+        'none',
+        '--read-only',
+        '--rm',
+        '--timeout',
+        `${timeout}`,
+        '--workdir',
+        '/run',
+        image,
+        ...command,
+    ]
+    const cps = spawn(cmd, args, {})
     cps.on('error', e => err(`${e.message}`))
     cps.stdout.setEncoding('utf-8')
     cps.stderr.setEncoding('utf-8')
